@@ -3,7 +3,8 @@
 /**
  * Alpaca forms engine for jQuery
  */
-(function($) {
+import jQuery from "jquery";
+var $ = jQuery;
 
     /**
      * Renders an Alpaca field instance that is bound to a DOM element.
@@ -4571,4 +4572,4 @@
     };
 
 
-})(jQuery);
+export default Alpaca;
