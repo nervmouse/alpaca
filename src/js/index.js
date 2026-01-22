@@ -79,8 +79,12 @@ import './fields/advanced/UpperCaseField.js';
 import './fields/advanced/URLField.js';
 import './fields/advanced/ZipcodeField.js';
 
-// Base View
+// Views
 import './views/base.js';
+import './views/web.js';
+import './views/bootstrap.js';
+import './views/jqueryui.js';
+import './views/jquerymobile.js';
 
 // i18n
 import './messages/i18n/cs_CZ.js';

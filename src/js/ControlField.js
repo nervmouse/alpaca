@@ -1,8 +1,6 @@
-(function($) {
-
-    var Alpaca = $.alpaca;
-
-    Alpaca.ControlField = Alpaca.Field.extend(
+import jQuery from "jquery";
+import Alpaca from "./Alpaca.js";
+var $ = jQuery;Alpaca.ControlField = Alpaca.Field.extend(
         /**
          * @lends Alpaca.ControlField.prototype
          */
@@ -1084,4 +1082,3 @@
         "invalidValueOfEnum": "This field should have one of the values in {0}.  Current value is: {1}"
     });
 
-})(jQuery);
