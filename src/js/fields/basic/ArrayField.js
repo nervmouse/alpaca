@@ -893,15 +893,15 @@ var $ = jQuery;
                         self.refresh(function() {
                             spinner.remove();
                             self.loading = false;
+                            callback();
                         });
                     })
                 }
                 else
                 {
                     self.updateToolbars();
+                    callback();
                 }
-
-                callback();
 
             });
         },

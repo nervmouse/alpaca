@@ -302,6 +302,7 @@ var $ = jQuery;Alpaca.ControlField = Alpaca.Field.extend(
 
                 this.base(function() {
 
+                    self.getFieldEl().addClass("alpaca-controlfield");
                     callback();
 
                 });
