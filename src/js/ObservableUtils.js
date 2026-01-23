@@ -155,6 +155,7 @@ var $ = jQuery;
     {
         var scope;
         var id;
+        var observable;
 
         var args = Alpaca.makeArray(arguments);
         if (args.length == 1)

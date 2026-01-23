@@ -1,6 +1,15 @@
 (function($) {
 
-    module("forms: edit");
+    module("forms: edit", {
+        setup: function() {
+            $("#qunit-fixture").append('<div id="editform-1"></div>');
+            $("#qunit-fixture").append('<div id="editform-2"></div>');
+        },
+        teardown: function() {
+            $("#editform-1").remove();
+            $("#editform-2").remove();
+        }
+    });
 
     // Test case 1 : Edit form with readonly fields.
     test("Edit form with readonly fields.", function() {
