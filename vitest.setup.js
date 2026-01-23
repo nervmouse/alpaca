@@ -156,6 +156,43 @@ global.test = (name, fn) => {
             document.getElementById('qunit-fixture').innerHTML = '';
         }
 
+        // Populate fixture with legacy test IDs
+        const FIXTURE_IDS = [
+            'text-1', 'text-2', 'text-3',
+            'number-1', 'number-2',
+            'map-1',
+            'email-1',
+            'ipv4-1',
+            'date-1',
+            'integer-1', 'integer-2', 'integer-3',
+            'form-1',
+            'tag-1',
+            'checkbox-1', 'checkbox-2',
+            'phone-1',
+            'object-1', 'object-2', 'object-3', 'object-4',
+            'conditional-1',
+            'select-1', 'select-2', 'select-3', 'select-4',
+            'wysiwyg-1',
+            'dependency-1',
+            'uppercase-1',
+            'lowercase-1',
+            'password-1',
+            'file-1',
+            'time-1',
+            'radio-1', 'radio-2', 'radio-3', 'radio-4',
+            'textarea-1',
+            'validation-1', 'validation-2', 'validation-4'
+        ];
+
+        const fixture = document.getElementById('qunit-fixture');
+        if (fixture) {
+            FIXTURE_IDS.forEach(id => {
+                const div = document.createElement('div');
+                div.id = id;
+                fixture.appendChild(div);
+            });
+        }
+
         // Run setup
         if (currentModule.setup) {
             await currentModule.setup();
@@ -206,12 +243,66 @@ global.test = (name, fn) => {
 // We use dynamic imports to ensure globals are set before these libraries run
 await import('jquery-ui-dist/jquery-ui.js');
 await import('jquery.maskedinput/src/jquery.maskedinput.js');
+await import('jquery-price-format');
+
+// Mock CKEDITOR to prevent ReferenceError in CKEditorField.js
+window.CKEDITOR = {
+    disableAutoInline: false,
+    replace: () => ({
+        on: () => {},
+        removeAllListeners: () => {},
+        destroy: () => {},
+        setData: () => {},
+        getData: () => "",
+        editable: () => ({
+            attachListener: () => {}
+        }),
+        document: {}
+    })
+};
 
 // Import Alpaca Source
 const Alpaca = (await import('./src/js/index.js')).default;
 
 // Import Test Helpers
 await import('./tests/js/helpers/helpers.js');
+
+// Patch querySelectorAll to throw on custom jQuery selectors so jQuery falls back to Sizzle
+const originalElementQSA = window.Element.prototype.querySelectorAll;
+const originalDocumentQSA = window.document.querySelectorAll; // Patch instance method
+
+const checkSelector = (selector) => {
+    if (typeof selector === 'string' && /:(text|radio|checkbox|file|password|submit|image|reset|button)/.test(selector)) {
+        throw new Error("Force Sizzle for custom selectors: " + selector);
+    }
+};
+
+window.Element.prototype.querySelectorAll = function(selector) {
+    checkSelector(selector);
+    return originalElementQSA.apply(this, arguments);
+};
+
+window.document.querySelectorAll = function(selector) {
+    checkSelector(selector);
+    return originalDocumentQSA.apply(this, arguments);
+};
+
+// Polyfill jQuery selectors that might be failing in happy-dom environment
+if ($ && $.expr && $.expr[':']) {
+    // Force overwrite :text selector
+    $.expr[':'].text = function( elem ) {
+        var attr = elem.getAttribute( "type" ), type = attr ? attr.toLowerCase() : "text";
+        return ( elem.tagName.toLowerCase() === "input" ) && type === "text";
+    };
+    // Force overwrite :radio selector
+    $.expr[':'].radio = function( elem ) {
+        return ( elem.tagName.toLowerCase() === "input" ) && elem.type === "radio";
+    };
+    // Force overwrite :checkbox selector
+    $.expr[':'].checkbox = function( elem ) {
+        return ( elem.tagName.toLowerCase() === "input" ) && elem.type === "checkbox";
+    };
+}
 
 // Map legacy view IDs used in tests
 Alpaca.registerView({ id: "VIEW_WEB_EDIT", parent: "web-edit" });
