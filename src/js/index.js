@@ -1,5 +1,13 @@
 import Alpaca from './Alpaca.js';
 
+// CSS
+import '../css/alpaca-core.css';
+import '../css/alpaca-fields.css';
+import '../css/alpaca-web.css';
+import '../css/alpaca-bootstrap.css';
+import '../css/alpaca-jqueryui.css';
+import '../css/alpaca-jquerymobile.css';
+
 // Core
 import './Alpaca-async.js';
 import './ObservableUtils.js';
@@ -79,8 +87,12 @@ import './fields/advanced/UpperCaseField.js';
 import './fields/advanced/URLField.js';
 import './fields/advanced/ZipcodeField.js';
 
-// Base View
+// Views
 import './views/base.js';
+import './views/web.js';
+import './views/bootstrap.js';
+import './views/jqueryui.js';
+import './views/jquerymobile.js';
 
 // i18n
 import './messages/i18n/cs_CZ.js';
