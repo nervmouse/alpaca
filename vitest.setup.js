@@ -151,6 +151,11 @@ global.notEqual = (actual, expected, msg) => viExpect(actual, msg).not.toEqual(e
 
 global.test = (name, fn) => {
     viTest(name, async () => {
+        // Clean fixture
+        if (document.getElementById('qunit-fixture')) {
+            document.getElementById('qunit-fixture').innerHTML = '';
+        }
+
         // Run setup
         if (currentModule.setup) {
             await currentModule.setup();
@@ -204,6 +209,9 @@ await import('jquery.maskedinput/src/jquery.maskedinput.js');
 
 // Import Alpaca Source
 const Alpaca = (await import('./src/js/index.js')).default;
+
+// Import Test Helpers
+await import('./tests/js/helpers/helpers.js');
 
 // Map legacy view IDs used in tests
 Alpaca.registerView({ id: "VIEW_WEB_EDIT", parent: "web-edit" });

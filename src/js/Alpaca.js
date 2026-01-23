@@ -309,17 +309,9 @@ var $ = jQuery;
                 };
 
                 // final call to update validation state
-                // only do this if we're not supposed to suspend initial validation errors
-                if (!field.hideInitValidationError)
-                {
-                    field.refreshValidationState(true, function() {
-                        finish();
-                    });
-                }
-                else
-                {
+                field.refreshValidationState(true, function() {
                     finish();
-                }
+                });
             }
             else
             {
