@@ -10,6 +10,79 @@ global.document = window.document;
 global.jQuery = global.$ = window.jQuery = window.$ = $;
 global.Handlebars = window.Handlebars = Handlebars;
 
+// Mock $.fn.spin (used for loading indicators)
+$.fn.spin = function() {
+    return this;
+};
+
+// Mock $.ajax for local file loading in tests
+const originalAjax = $.ajax;
+$.ajax = function(options) {
+    const url = options.url || '';
+    if (url.startsWith('../examples/')) {
+        // Remap path
+        // tests usually expect ../examples/ to map to site/demos/bootstrap/
+        let relPath = url.replace('../examples/', '');
+
+        // Handle "forms/" prefix if present, as site/demos/bootstrap/ does not have a "forms" subdirectory
+        // but has "customer-profile" etc directly.
+        if (relPath.startsWith('forms/')) {
+            relPath = relPath.substring('forms/'.length);
+        }
+
+        const filePath = path.resolve(__dirname, 'site/demos/bootstrap', relPath);
+
+        if (fs.existsSync(filePath)) {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            let data = content;
+
+            // Auto-parse JSON if expected or looks like JSON
+            if (options.dataType === 'json' || (typeof content === 'string' && content.trim().startsWith('{'))) {
+                try {
+                    data = JSON.parse(content);
+                } catch (e) {
+                    // ignore
+                }
+            }
+
+            // Simulate async success
+            setTimeout(() => {
+                if (options.success) {
+                    options.success(data);
+                }
+                if (options.complete) {
+                    options.complete({ status: 200, statusText: 'OK', responseText: content }, 'success');
+                }
+            }, 0);
+
+            // Return a dummy jqXHR object
+            return {
+                done: function(cb) { cb(data); return this; },
+                fail: function() { return this; },
+                always: function(cb) { cb(); return this; }
+            };
+        } else {
+             console.error(`Mock Ajax: File not found: ${filePath} (Original: ${url})`);
+             // Simulate error
+             setTimeout(() => {
+                 if (options.error) {
+                     options.error({ readyState: 4, status: 404, statusText: 'Not Found' }, 'error', 'Not Found');
+                 }
+                 if (options.complete) {
+                     options.complete({ readyState: 4, status: 404, statusText: 'Not Found' }, 'error');
+                 }
+             }, 0);
+
+             return {
+                done: function() { return this; },
+                fail: function(cb) { cb({ status: 404 }, 'error', 'Not Found'); return this; },
+                always: function(cb) { cb(); return this; }
+             };
+        }
+    }
+    return originalAjax.apply($, arguments);
+};
+
 // Compile Templates for Alpaca
 window.HandlebarsPrecompiled = {};
 const templatesDir = path.resolve(__dirname, 'src/templates');
@@ -78,6 +151,11 @@ global.notEqual = (actual, expected, msg) => viExpect(actual, msg).not.toEqual(e
 
 global.test = (name, fn) => {
     viTest(name, async () => {
+        // Clean fixture
+        if (document.getElementById('qunit-fixture')) {
+            document.getElementById('qunit-fixture').innerHTML = '';
+        }
+
         // Run setup
         if (currentModule.setup) {
             await currentModule.setup();
@@ -131,6 +209,18 @@ await import('jquery.maskedinput/src/jquery.maskedinput.js');
 
 // Import Alpaca Source
 const Alpaca = (await import('./src/js/index.js')).default;
+
+// Import Test Helpers
+await import('./tests/js/helpers/helpers.js');
+
+// Map legacy view IDs used in tests
+Alpaca.registerView({ id: "VIEW_WEB_EDIT", parent: "web-edit" });
+Alpaca.registerView({ id: "VIEW_WEB_CREATE", parent: "web-create" });
+Alpaca.registerView({ id: "VIEW_WEB_EDIT_LIST", parent: "web-edit" });
+Alpaca.registerView({ id: "VIEW_JQUERYUI_EDIT", parent: "jqueryui-edit" });
+Alpaca.registerView({ id: "VIEW_JQUERYUI_EDIT_LIST", parent: "jqueryui-edit" });
+Alpaca.registerView({ id: "VIEW_BOOTSTRAP_EDIT", parent: "bootstrap-edit" });
+Alpaca.registerView({ id: "VIEW_BOOTSTRAP_CREATE", parent: "bootstrap-create" });
 
 // Ensure Alpaca is global
 global.Alpaca = window.Alpaca = Alpaca;
