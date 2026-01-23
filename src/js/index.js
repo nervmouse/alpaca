@@ -1,5 +1,13 @@
 import Alpaca from './Alpaca.js';
 
+// CSS
+import '../css/alpaca-core.css';
+import '../css/alpaca-fields.css';
+import '../css/alpaca-web.css';
+import '../css/alpaca-bootstrap.css';
+import '../css/alpaca-jqueryui.css';
+import '../css/alpaca-jquerymobile.css';
+
 // Core
 import './Alpaca-async.js';
 import './ObservableUtils.js';
