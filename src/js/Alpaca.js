@@ -2340,9 +2340,16 @@ var $ = jQuery;
                 // now invoke all of the functions
                 // this tells each template to compile
                 var totalCalls = functionArray.length;
-                for (var i = 0; i < functionArray.length; i++)
+                if (totalCalls === 0)
                 {
-                    functionArray[i](totalCalls);
+                     finalCallback(normalizedViews);
+                }
+                else
+                {
+                    for (var i = 0; i < functionArray.length; i++)
+                    {
+                        functionArray[i](totalCalls);
+                    }
                 }
             };
 
