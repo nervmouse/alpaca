@@ -4600,6 +4600,7 @@ var $ = jQuery;/////////////////////////////////////////////////////////////////
         doDuring: doWhilst$1
     };
 
+    Object.assign(async, index);
 
 export default async;
 
